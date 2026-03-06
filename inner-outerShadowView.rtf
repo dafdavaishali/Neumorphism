@@ -1,0 +1,140 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2818
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red255\green255\blue255;
+\red31\green31\blue36;\red255\green255\blue255;\red80\green39\blue1;\red255\green255\blue255;\red255\green255\blue255;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000\c0;\csgenericrgb\c100000\c100000\c100000\c85000;
+\csgenericrgb\c12054\c12284\c14131;\cssrgb\c100000\c100000\c99985\c85000;\cssrgb\c39024\c20428\c0;\cssrgb\c100000\c100000\c99941;\cssrgb\c100000\c100000\c99985\c0;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab593
+\pard\tx593\pardeftab593\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \
+class InnerShadowView: UIView \{\
+\
+    lazy var innerShadowLayer: CAShapeLayer = \{\
+        let shadowLayer = CAShapeLayer()\
+        shadowLayer.shadowColor = UIColor.black.cgColor\
+        shadowLayer.shadowOffset = CGSize(width: 0.0, height: 0.0)\
+        shadowLayer.shadowOpacity = 0.1\
+        shadowLayer.shadowRadius = 14\
+        shadowLayer.fillRule = .evenOdd\
+        return shadowLayer\
+    \}()\
+\
+    override init(frame: CGRect) \{\
+        super.init(frame: frame)\
+        self.configure()\
+    \}\
+\
+    required init?(coder aDecoder: NSCoder) \{\
+        super.init(coder: aDecoder)\
+        self.configure()\
+    \}\
+\
+    private func configure() \{\
+        self.layer.masksToBounds = true\
+        self.layer.cornerRadius = 6\
+        self.layer.addSublayer(self.innerShadowLayer)\
+    \}\
+\
+    override func layoutSubviews() \{\
+        super.layoutSubviews()\
+\
+        let shadowPath = CGMutablePath()\
+        let inset = -self.innerShadowLayer.shadowRadius * 2.0\
+        shadowPath.addRect(self.bounds.insetBy(dx: inset, dy: inset))\
+        shadowPath.addRect(self.bounds)\
+        self.innerShadowLayer.path = shadowPath\
+    \}\
+\
+\}
+\f1\fs24 \cf4 \cb5 \
+\
+\cf6 \cb7 \
+\cf8 =======================================================================\
+=======================================================================\
+=======================================================================\cf4 \cb5 \
+\pard\tx593\pardeftab593\partightenfactor0
+
+\f0\fs28 \cf2 \cb9 \
+\
+class NeumorphicButton: UIButton \{//outer shadow\
+    \
+    private let darkShadow = CALayer()\
+    private let lightShadow = CALayer()\
+    \
+    private let radius: CGFloat = 20\
+    private let shadowRadiuss: CGFloat = 5\
+    \
+    override init(frame: CGRect) \{\
+        super.init(frame: frame)\
+        setupButton()\
+    \}\
+    \
+    required init?(coder: NSCoder) \{\
+        super.init(coder: coder)\
+        setupButton()\
+    \}\
+    \
+    override func layoutSubviews() \{\
+        super.layoutSubviews()\
+        updateShadows()\
+    \}\
+    \
+    private func setupButton() \{\
+        clipsToBounds = false // Important for shadows\
+        layer.cornerRadius = radius\
+        backgroundColor = UIColor.systemGray6 // Match with the superview's background\
+\
+        setupShadows()\
+    \}\
+    \
+    private func setupShadows() \{\
+        // Dark shadow (bottom-right)\
+        darkShadow.shadowColor = UIColor(white: 0.8, alpha: 1.0).cgColor\
+        darkShadow.shadowOffset = CGSize(width: shadowRadiuss, height: shadowRadiuss)\
+        darkShadow.shadowOpacity = 1\
+        darkShadow.shadowRadius = shadowRadiuss\
+\
+        // Light shadow (top-left)\
+        lightShadow.shadowColor = UIColor.white.cgColor\
+        lightShadow.shadowOffset = CGSize(width: -shadowRadiuss, height: -shadowRadiuss)\
+        lightShadow.shadowOpacity = 1\
+        lightShadow.shadowRadius = shadowRadiuss\
+        \
+        layer.insertSublayer(darkShadow, at: 0)\
+        layer.insertSublayer(lightShadow, at: 0)\
+    \}\
+    \
+    private func updateShadows() \{\
+        darkShadow.frame = bounds\
+        lightShadow.frame = bounds\
+        \
+        darkShadow.cornerRadius = radius\
+        lightShadow.cornerRadius = radius\
+        \
+        darkShadow.backgroundColor = backgroundColor?.cgColor\
+        lightShadow.backgroundColor = backgroundColor?.cgColor\
+    \}\
+    \
+    override var isHighlighted: Bool \{\
+        didSet \{\
+            let newOffset: CGSize = isHighlighted ?\
+                CGSize(width: -shadowRadiuss, height: -shadowRadiuss) :\
+                CGSize(width: shadowRadiuss, height: shadowRadiuss)\
+\
+            let newOffsetLight: CGSize = isHighlighted ?\
+                CGSize(width: shadowRadiuss, height: shadowRadiuss) :\
+                CGSize(width: -shadowRadiuss, height: -shadowRadiuss)\
+\
+            UIView.animate(withDuration: 0.2) \{\
+                self.darkShadow.shadowOffset = newOffset\
+                self.lightShadow.shadowOffset = newOffsetLight\
+            \}\
+        \}\
+    \}\
+\}\
+\
+}
